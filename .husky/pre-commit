@@ -1,0 +1,17 @@
+# Активируем версию Node из .nvmrc для hook'а: husky запускает скрипт через
+# `sh -e`, который не наследует интерактивное окружение и может использовать
+# системный node (часто < 18). Сначала пробуем fnm, потом nvm.
+if [ -x /opt/homebrew/bin/fnm ] || command -v fnm >/dev/null 2>&1; then
+  export PATH="/opt/homebrew/bin:$PATH"
+  eval "$(fnm env)" >/dev/null 2>&1 || true
+  fnm use --install-if-missing >/dev/null 2>&1 || true
+elif [ -s "$HOME/.nvm/nvm.sh" ]; then
+  . "$HOME/.nvm/nvm.sh" >/dev/null 2>&1
+  nvm use >/dev/null 2>&1 || true
+elif [ -s "/opt/homebrew/opt/nvm/nvm.sh" ]; then
+  . "/opt/homebrew/opt/nvm/nvm.sh" >/dev/null 2>&1
+  nvm use >/dev/null 2>&1 || true
+fi
+
+node scripts/update-toc.mjs
+node scripts/build-html.mjs
